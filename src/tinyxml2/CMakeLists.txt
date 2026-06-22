@@ -1,7 +1,7 @@
-cmake_minimum_required(VERSION 2.6 FATAL_ERROR)
-cmake_policy(VERSION 2.6)
+cmake_minimum_required(VERSION 3.10...3.30 FATAL_ERROR)
+cmake_policy(VERSION 3.10)
 if(POLICY CMP0063)
-	cmake_policy(SET CMP0063 OLD)
+	cmake_policy(SET CMP0063 NEW)
 endif()
 
 project(tinyxml2)
@@ -19,7 +19,7 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDEBUG")
 
 add_library(tinyxml2_static STATIC tinyxml2.cpp tinyxml2.h)
 set_target_properties(tinyxml2_static PROPERTIES
-        COMPILE_DEFINITONS "TINYXML2_EXPORT"
+        COMPILE_DEFINITIONS "TINYXML2_EXPORT"
         VERSION "${GENERIC_LIB_VERSION}"
         SOVERSION "${GENERIC_LIB_SOVERSION}")
 set_target_properties( tinyxml2_static PROPERTIES OUTPUT_NAME tinyxml2 )
