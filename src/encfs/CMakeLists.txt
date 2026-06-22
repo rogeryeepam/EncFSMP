@@ -28,7 +28,7 @@ SET(ALL_SRC BlockFileIO.cpp BlockNameIO.cpp Cipher.cpp CipherFileIO.cpp
 	Error.cpp FileIO.cpp FileNode.cpp FileUtils.cpp Interface.cpp
 	MACFileIO.cpp MemoryPool.cpp NameIO.cpp NullCipher.cpp
 	NullNameIO.cpp RawFileIO.cpp SSL_Cipher.cpp StreamNameIO.cpp
-	base64.cpp openssl.cpp vasprintf.c )
+	XmlReader.cpp base64.cpp openssl.cpp vasprintf.c )
 
 SET(ALL_HEADERS BlockFileIO.h BlockNameIO.h Cipher.h CipherFileIO.h
 	CipherKey.h ConfigReader.h ConfigVar.h Context.h DirNode.h
