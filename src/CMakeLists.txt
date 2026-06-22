@@ -394,7 +394,7 @@ INCLUDE_DIRECTORIES("rlog")
 INCLUDE_DIRECTORIES("intl")
 INCLUDE_DIRECTORIES("easyloggingpp")
 
-SET(EncFSMP_LINK_LIBRARIES ${wxWidgets_LIBRARIES} libencfs rlog intl easyloggingpp tinyxml2 ${OPENSSL_LIBRARIES} ${Boost_LIBRARIES})
+SET(EncFSMP_LINK_LIBRARIES ${wxWidgets_LIBRARIES} libencfs rlog intl easyloggingpp tinyxml2_static ${OPENSSL_LIBRARIES} ${Boost_LIBRARIES})
 IF(WIN32)
 	SET(EncFSMP_LINK_LIBRARIES ${EncFSMP_LINK_LIBRARIES} psapi.lib Crypt32.lib Ws2_32.lib)
 ENDIF(WIN32)
