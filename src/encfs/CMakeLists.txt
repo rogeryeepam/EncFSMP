@@ -5,6 +5,7 @@ project(libencfs)
 INCLUDE_DIRECTORIES("..")
 INCLUDE_DIRECTORIES("../rlog")
 INCLUDE_DIRECTORIES("../intl")
+INCLUDE_DIRECTORIES("../easyloggingpp")
 ADD_DEFINITIONS(-DRLOG_COMPONENT="encfs")
 
 IF(MSVC)
