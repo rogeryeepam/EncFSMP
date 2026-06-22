@@ -35,7 +35,6 @@ jobs:
             mingw-w64-x86_64-libpng
             mingw-w64-x86_64-libjpeg-turbo
             mingw-w64-x86_64-libtiff
-            mingw-w64-x86_64-googletest
             make
 
       - name: Clone pfmkit (PFM headers)
@@ -79,8 +78,7 @@ jobs:
             -DwxWidgets_CONFIGURATION=mswu \
             -DOPENSSL_ROOT_DIR=/mingw64 \
             -DBOOST_ROOT=/mingw64 \
-            -DGOOGLE_TEST_INCLUDE=/mingw64/include \
-            -DGOOGLE_TEST_LIBRARY=/mingw64/lib/libgtest.a \
+            -DGOOGLE_TEST_LIBRARY="" \
             -DENCFSMP_DEFINE_STOCKICONINFO=TRUE \
             -DENCFSMP_REMOVE_ADDITIONAL_LIBRARIES=TRUE \
             -DEFS_USE_STATIC_LIBGCC=TRUE \
