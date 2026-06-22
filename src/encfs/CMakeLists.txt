@@ -24,8 +24,8 @@ IF(CMAKE_COMPILER_IS_GNUCC)
 ENDIF(CMAKE_COMPILER_IS_GNUCC)
 
 SET(ALL_SRC BlockFileIO.cpp BlockNameIO.cpp Cipher.cpp CipherFileIO.cpp
-	CipherKey.cpp ConfigReader.cpp ConfigVar.cpp Context.cpp
-	DirNode.cpp FileIO.cpp FileNode.cpp FileUtils.cpp Interface.cpp
+	CipherKey.cpp ConfigReader.cpp ConfigVar.cpp Context.cpp DirNode.cpp
+	Error.cpp FileIO.cpp FileNode.cpp FileUtils.cpp Interface.cpp
 	MACFileIO.cpp MemoryPool.cpp NameIO.cpp NullCipher.cpp
 	NullNameIO.cpp RawFileIO.cpp SSL_Cipher.cpp StreamNameIO.cpp
 	base64.cpp openssl.cpp vasprintf.c )
