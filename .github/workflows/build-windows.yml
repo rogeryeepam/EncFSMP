@@ -108,37 +108,46 @@ jobs:
             exit 1
           }
 
-          # Auto-discover every DLL the binary and its static libraries depend on,
-          # so the package is fully portable (no MSYS2 install required on the
-          # user's machine). Uses objdump on the .exe and all .a files we built.
+          # Recursively discover ALL DLL dependencies (direct + transitive).
+          # Start from the .exe and all .a static libraries we built, then
+          # follow the dependency chain by scanning each DLL we find.
           $msys2Bin = "D:\a\_temp\msys64\mingw64\bin"
           $objdump = "D:\a\_temp\msys64\mingw64\bin\objdump.exe"
           $allDlls = New-Object System.Collections.Generic.HashSet[string]
-          $targets = New-Object System.Collections.Generic.List[string]
-          $targets.Add($exe.FullName)
-          Get-ChildItem -Path build -Filter "*.a" -Recurse | ForEach-Object { $targets.Add($_.FullName) }
-          foreach ($t in $targets) {
+          $queue = New-Object System.Collections.Generic.Queue[string]
+
+          # Initial targets: the exe and all .a files
+          $queue.Enqueue($exe.FullName)
+          Get-ChildItem -Path build -Filter "*.a" -Recurse | ForEach-Object { $queue.Enqueue($_.FullName) }
+
+          # Process queue: for each file, extract DLL names, add to set, and
+          # enqueue the DLL itself for further scanning (transitive deps).
+          while ($queue.Count -gt 0) {
+            $t = $queue.Dequeue()
             if (-not (Test-Path $t)) { continue }
-            & $objdump -p $t 2>$null |
-              Select-String -Pattern "DLL Name:" |
-              ForEach-Object { $allDlls.Add( ($_ -split "DLL Name:")[1].Trim() ) } | Out-Null
+            $deps = & $objdump -p $t 2>$null | Select-String -Pattern "DLL Name:"
+            foreach ($line in $deps) {
+              $dllName = ($line -split "DLL Name:")[1].Trim()
+              if ($allDlls.Add($dllName)) {
+                # New DLL found: enqueue it for transitive scanning
+                $dllPath = Join-Path $msys2Bin $dllName
+                if (Test-Path $dllPath) {
+                  $queue.Enqueue($dllPath)
+                }
+              }
+            }
           }
-          Write-Output "Detected runtime DLL dependencies:"
-          $allDlls | ForEach-Object { Write-Output "  - $_" }
+
+          Write-Output "Detected runtime DLL dependencies (including transitive):"
+          $allDlls | Sort-Object | ForEach-Object { Write-Output "  - $_" }
+
+          # Copy all discovered DLLs to the artifact directory
           foreach ($dep in $allDlls) {
             $src = Join-Path $msys2Bin $dep
             if (Test-Path $src) {
               Copy-Item $src -Destination $artifactDir -Force
             } else {
               Write-Output "DLL not found in msys2: $dep"
-            }
-          }
-
-          # Always copy a few extra MSYS2/MinGW runtime DLLs as a safety net
-          foreach ($dll in @("libgcc_s_seh-1.dll", "libstdc++-6.dll", "libwinpthread-1.dll")) {
-            $src = Join-Path $msys2Bin $dll
-            if (Test-Path $src) {
-              Copy-Item $src -Destination $artifactDir -Force
             }
           }
 
