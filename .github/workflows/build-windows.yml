@@ -106,6 +106,48 @@ jobs:
             Write-Output "EncFSMP.exe not found"
             Get-ChildItem -Path build -Recurse | Select-Object FullName | Format-Table -AutoSize
           }
+          # Copy required DLLs from MSYS2 mingw64
+          $msys2Bin = "D:\a\_temp\msys64\mingw64\bin"
+          $dlls = @(
+            "libcrypto-3-x64.dll",
+            "libssl-3-x64.dll",
+            "libgcc_s_seh-1.dll",
+            "libstdc++-6.dll",
+            "libwinpthread-1.dll",
+            "libboost chrono-mt.dll",
+            "libboost date_time-mt.dll",
+            "libboost thread-mt.dll",
+            "libboost system-mt.dll",
+            "libboost filesystem-mt.dll",
+            "libboost locale-mt.dll",
+            "libboost random-mt.dll",
+            "libboost atomic-mt.dll",
+            "libboost serialization-mt.dll",
+            "libquadmath-0.dll",
+            "libiconv-2.dll",
+            "libicudt74.dll",
+            "libicuin74.dll",
+            "libicuuc74.dll",
+            "zlib1.dll",
+            "libpng16.dll",
+            "libjpeg62.dll",
+            "libtiff6.dll",
+            "libdeflate.dll",
+            "liblzma.dll",
+            "libzstd.dll",
+            "libwebp.dll",
+            "libwxbaseu32.dll",
+            "libwxmswu32.dll"
+          )
+          foreach ($dll in $dlls) {
+            $src = Join-Path $msys2Bin $dll
+            if (Test-Path $src) {
+              Copy-Item $src -Destination $artifactDir -Force
+              Write-Output "Copied $dll"
+            } else {
+              Write-Output "DLL not found: $dll"
+            }
+          }
 
       - name: Upload binary
         if: success()
