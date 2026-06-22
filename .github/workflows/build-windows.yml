@@ -38,18 +38,11 @@ jobs:
             mingw-w64-x86_64-googletest
             make
 
-      - name: Detect PFM headers
-        id: pfm
-        shell: pwsh
-        run: |
-          $pfmHeader = Join-Path $env:RUNNER_TEMP "pfm\include\pfmapi.h"
-          if (Test-Path $pfmHeader) {
-            Write-Output "found=true" >> $env:GITHUB_OUTPUT
-            Write-Output "Found PFM headers at ${pfmHeader}"
-          } else {
-            Write-Output "found=false" >> $env:GITHUB_OUTPUT
-            Write-Output "PFM headers not found; build will skip PFM dependency if possible."
-          }
+      - name: Clone pfmkit (PFM headers)
+        uses: actions/checkout@v4
+        with:
+          repository: rogeryeepam/pfmkit
+          path: ${{ runner.temp }}/pfmkit
 
       - name: Configure CMake
         run: |
@@ -58,6 +51,7 @@ jobs:
           cmake -G Ninja \
             -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_PREFIX_PATH=/mingw64 \
+            -DPFM_ROOT=${{ runner.temp }}/pfmkit \
             -DwxWidgets_ROOT_DIR=/mingw64 \
             -DOPENSSL_ROOT_DIR=/mingw64 \
             -DBOOST_ROOT=/mingw64 \
