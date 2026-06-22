@@ -1,0 +1,104 @@
+name: Build Windows Binary
+
+on:
+  push:
+    branches: [master, main]
+    tags: ['*']
+  pull_request:
+    branches: [master, main]
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    name: Build EncFSMP (Windows x64)
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: msys2 {0}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up MSYS2 / MinGW64
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: mingw64
+          update: true
+          install: >-
+            mingw-w64-x86_64-gcc
+            mingw-w64-x86_64-cmake
+            mingw-w64-x86_64-ninja
+            mingw-w64-x86_64-wxwidgets3.2-msw
+            mingw-w64-x86_64-boost
+            mingw-w64-x86_64-openssl
+            mingw-w64-x86_64-zlib
+            mingw-w64-x86_64-libpng
+            mingw-w64-x86_64-libjpeg-turbo
+            mingw-w64-x86_64-libtiff
+            mingw-w64-x86_64-googletest
+            make
+
+      - name: Detect PFM headers
+        id: pfm
+        shell: pwsh
+        run: |
+          $pfmHeader = Join-Path $env:RUNNER_TEMP "pfm\include\pfmapi.h"
+          if (Test-Path $pfmHeader) {
+            Write-Output "found=true" >> $env:GITHUB_OUTPUT
+            Write-Output "Found PFM headers at ${pfmHeader}"
+          } else {
+            Write-Output "found=false" >> $env:GITHUB_OUTPUT
+            Write-Output "PFM headers not found; build will skip PFM dependency if possible."
+          }
+
+      - name: Configure CMake
+        run: |
+          mkdir -p build
+          cd build
+          cmake -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_PREFIX_PATH=/mingw64 \
+            -DwxWidgets_ROOT_DIR=/mingw64 \
+            -DOPENSSL_ROOT_DIR=/mingw64 \
+            -DBOOST_ROOT=/mingw64 \
+            -DGOOGLE_TEST_INCLUDE=/mingw64/include \
+            -DGOOGLE_TEST_LIBRARY=/mingw64/lib/libgtest.a \
+            -DENCFSMP_DEFINE_STOCKICONINFO=TRUE \
+            -DENCFSMP_REMOVE_ADDITIONAL_LIBRARIES=TRUE \
+            -DEFS_USE_STATIC_LIBGCC=TRUE \
+            ../src
+
+      - name: Build
+        run: |
+          cd build
+          cmake --build . --config Release --parallel
+
+      - name: Collect build artifacts
+        id: collect
+        shell: pwsh
+        run: |
+          $artifactDir = Join-Path $env:RUNNER_TEMP "EncFSMP-windows-x64"
+          New-Item -ItemType Directory -Force -Path $artifactDir | Out-Null
+          $exe = Get-ChildItem -Path build -Filter "EncFSMP.exe" -Recurse | Select-Object -First 1
+          if ($exe) {
+            Copy-Item $exe.FullName -Destination $artifactDir
+            Write-Output "Copied $($exe.FullName) to $artifactDir"
+          } else {
+            Write-Output "EncFSMP.exe not found"
+          }
+          "artifact_dir=$artifactDir" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+
+      - name: Upload binary
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: EncFSMP-windows-x64
+          path: ${{ runner.temp }}\EncFSMP-windows-x64\*.exe
+
+      - name: Create release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ runner.temp }}\EncFSMP-windows-x64\*.exe
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
