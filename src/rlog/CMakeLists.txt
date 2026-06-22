@@ -15,8 +15,8 @@ ENDIF(MSVC)
 IF(CMAKE_COMPILER_IS_GNUCC)
 	SET( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -pedantic" )
 	SET( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pedantic" )
-	SET( CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -O2 -Wall -pedantic -funroll-loops -ffast-math -fsched-spec-load -fomit-frame-pointer" )
-	SET( CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O2 -Wall -pedantic -funroll-loops -ffast-math -fsched-spec-load -fomit-frame-pointer" )
+	SET( CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -O2 -Wall -pedantic -funroll-loops -ffast-math -fomit-frame-pointer" )
+	SET( CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O2 -Wall -pedantic -funroll-loops -ffast-math -fomit-frame-pointer" )
 ENDIF(CMAKE_COMPILER_IS_GNUCC)
 
 SET(ALL_SRC RLogChannel.cpp Error.cpp rlog.cpp rloginit.cpp
