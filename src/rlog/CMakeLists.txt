@@ -1,7 +1,9 @@
 cmake_minimum_required(VERSION 2.6)
-project(intl)
+project(rlog)
 
 #ADD_DEFINITIONS(-DBUILD_LIB)
+INCLUDE_DIRECTORIES("..")
+ADD_DEFINITIONS(-DRLOG_COMPONENT="encfs")
 
 IF(MSVC)
 	ADD_DEFINITIONS(-D_CRT_SECURE_NO_WARNINGS)
@@ -17,8 +19,13 @@ IF(CMAKE_COMPILER_IS_GNUCC)
 	SET( CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O2 -Wall -pedantic -funroll-loops -ffast-math -fomit-frame-pointer" )
 ENDIF(CMAKE_COMPILER_IS_GNUCC)
 
-SET(ALL_SRC autosprintf.cpp )
+SET(ALL_SRC RLogChannel.cpp Error.cpp rlog.cpp rloginit.cpp
+	rloglocation.cpp RLogNode.cpp RLogPublisher.cpp
+	RLogTime.cpp StdioNode.cpp )
 
-SET(ALL_HEADERS autosprintf.h )
+SET(ALL_HEADERS common.h Error.h Lock.h Mutex.h
+	rlog-c99.h rlog-novariadic.h rlog-prec99.h rlog.h
+	RLogChannel.h rloginit.h rloglocation.h RLogNode.h
+	RLogPublisher.h RLogTime.h StdioNode.h )
 
-ADD_LIBRARY(intl STATIC ${ALL_SRC} ${ALL_HEADERS})
+ADD_LIBRARY(rlog STATIC ${ALL_SRC} ${ALL_HEADERS})
